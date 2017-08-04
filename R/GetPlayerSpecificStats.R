@@ -13,19 +13,19 @@
 #' @examples
 #' GetPlayerSpecificStats('Anthony Davis', 'Scoring', 2015)
 
-GetPlayerSpecificStats <- function(player, 
+GetPlayerSpecificStats <- function(player,
                                    measure.type,
                                    per.mode = 'Totals',
                                    year = CurrentYear(),
                                    season.type = 'Regular Season',
                                    player.ids = NA) {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   measure.type <- CleanParam(measure.type)
   per.mode <- CleanParam(per.mode)
   player <- PlayerNameToID(player, year, player.ids)
-  
+
   request <- GET(
     "http://stats.nba.com/stats/playerdashboardbyyearoveryear",
     query = list(
@@ -55,23 +55,25 @@ GetPlayerSpecificStats <- function(player,
       VsDivision = ""
     ),
     add_headers(
-      'Accept-Language' = 'en-US,en;q=0.8,af;q=0.6',
-      'Referer' = 'http://stats.nba.com/player/',
-      'User-Agent' = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36'
-    )
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+      )
   )
-  
+
   content <- content(request, 'parsed')[[3]][[2]]
   stats <- ContentToDF(content)
-  
+
   # Clean data frame
   remove.cols <- c('GROUP_SET', 'CFPARAMS', 'CFID')
   remove.cols <- which(colnames(stats) %in% remove.cols)
   stats <- stats[, -remove.cols]
-  
+
   stats$GROUP_VALUE <- SeasonToYear(stats$GROUP_VALUE)
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }
