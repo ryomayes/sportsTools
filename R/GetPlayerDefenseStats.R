@@ -1,5 +1,5 @@
 #' Defensive stats for players
-#' 
+#'
 #' @param year e.g. 2015 for 2014-15 season
 #' @param stat which stat ('Greater Than 15Ft')
 #' @param per.mode 'Per Game' or 'Totals
@@ -10,14 +10,14 @@
 #' @examples
 #' GetPlayerDefenseStats(stat = 'Greater Than 15Ft')
 
-GetPlayerDefenseStats <- function(year = CurrentYear(), 
-                                  stat = 'Greater Than 15Ft', 
+GetPlayerDefenseStats <- function(year = CurrentYear(),
+                                  stat = 'Greater Than 15Ft',
                                   per.mode = 'Totals') {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   per.mode <- CleanParam(per.mode)
-  
+
   request = GET(
     "http://stats.nba.com/stats/leaguedashptdefend",
     query = list(
@@ -52,13 +52,18 @@ GetPlayerDefenseStats <- function(year = CurrentYear(),
       VsDivision = "",
       Weight = ""
     ),
-    add_headers('Referer' = 'http://stats.nba.com/league/player/defense/',
-                'User-Agent' = 'Mozilla/5.0')
+    add_headers(
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+    )
   )
-  
+
   content <- content(request, 'parsed')[[3]][[1]]
   stats <- ContentToDF(content)
-  
+
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
 

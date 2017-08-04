@@ -1,5 +1,5 @@
 #' Lineup stats
-#' 
+#'
 #' @param year e.g. 2015 for 2014-15 season
 #' @param players Number of players to get lineup stats on (2-5)
 #' @param type 'Advanced'
@@ -13,11 +13,11 @@
 #' @examples
 #' GetLineupStats(year = 2016, players = 5, type = 'Advanced')
 
-GetLineupStats <- function(year, players = 5, type = 'Advanced', 
+GetLineupStats <- function(year, players = 5, type = 'Advanced',
                            date.from = '', date.to = '', team = 0, team.ids = NA) {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   team <- TeamNameToID(team)
 
   request = GET(
@@ -51,13 +51,18 @@ GetLineupStats <- function(year, players = 5, type = 'Advanced',
       VsConference = "",
       VsDivision = ""
     ),
-    add_headers('Referer' = 'http://stats.nba.com/league/lineups/',
-                'User-Agent' = 'Mozilla/5.0')
+    add_headers(
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+    )
   )
-  
+
   content <- content(request, 'parsed')[[3]][[1]]
   stats <- ContentToDF(content)
-  
+
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
 

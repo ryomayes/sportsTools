@@ -12,14 +12,14 @@
 #' @examples
 #' GetHustleStats(2017)
 
-GetHustleStats <- function(player.or.team = 'player', 
-                           year = CurrentYear(), 
-                           season.type = 'Regular Season', 
+GetHustleStats <- function(player.or.team = 'player',
+                           year = CurrentYear(),
+                           season.type = 'Regular Season',
                            per.mode = 'Totals',
                            quarter = 0) {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   if (player.or.team == 'player') {
     return(.GetPlayerHustleStats(year, season.type, per.mode))
   } else {
@@ -63,22 +63,27 @@ GetHustleStats <- function(player.or.team = 'player',
       VsDivision = "",
       Weight = ""
     ),
-    add_headers('Referer' = 'http://stats.nba.com/players/hustle/',
-                'User-Agent' = 'Mozilla/5.0')
+    add_headers(
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+    )
   )
-  
+
   content <- content(request, 'parsed')[[3]][[1]]
   stats <- ContentToDF(content)
-  
+
   # Clean data frame
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }
 
 .GetTeamHustleStats <- function(year, season.type, per.mode, quarter) {
-  
+
   request <- GET(
     "http://stats.nba.com/stats/leaguehustlestatsteam",
     query = list(
@@ -117,13 +122,13 @@ GetHustleStats <- function(player.or.team = 'player',
     ),
     add_headers('User-Agent' = 'Mozilla/5.0')
   )
-  
+
   content <- content(request, 'parsed')[[3]][[1]]
   stats <- ContentToDF(content)
-  
+
   # Clean data frame
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }

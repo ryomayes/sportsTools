@@ -12,15 +12,15 @@
 #' @examples
 #' GetTeamDefenseStats(2017)
 
-GetTeamDefenseStats <- function(year = CurrentYear(), 
+GetTeamDefenseStats <- function(year = CurrentYear(),
                                 defense.category = 'Less Than 6Ft',
                                 season.type = 'Regular Season',
                                 per.mode = 'Totals') {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   per.mode <- CleanParam(per.mode)
-  
+
   request <- GET(
     "http://stats.nba.com/stats/leaguedashptteamdefend",
     query = list(
@@ -46,16 +46,22 @@ GetTeamDefenseStats <- function(year = CurrentYear(),
       VsConference = "",
       VsDivision = ""
     ),
-    add_headers('User-Agent' = 'Mozilla/5.0')
+    add_headers(
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+    )
   )
-  
+
   content <- content(request, 'parsed')[[3]][[1]]
   stats <- ContentToDF(content)
-  
+
   # Clean data frame
   char.cols <- c('TEAM_ID', 'TEAM_NAME', 'TEAM_ABBREVIATION')
   char.cols <- which(colnames(stats) %in% char.cols)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }

@@ -15,16 +15,16 @@
 #' @examples
 #' GetPlayerStats(2014, measure.type = 'Basic')
 
-GetPlayerStats <- function(year = CurrentYear(), 
-                           season.type = 'Regular Season', 
-                           measure.type = 'Basic', 
+GetPlayerStats <- function(year = CurrentYear(),
+                           season.type = 'Regular Season',
+                           measure.type = 'Basic',
                            per.mode = 'Per Game',
                            position = '',
                            location = '',
                            source = 'NBA') {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   if (source == 'NBA') {
     return(.GetPlayerStatsNBA(year, season.type, measure.type, per.mode, position, location))
   } else if (source == 'ESPN') {
@@ -33,10 +33,10 @@ GetPlayerStats <- function(year = CurrentYear(),
 }
 
 .GetPlayerStatsNBA <- function(year, season.type, measure.type, per.mode, position, location) {
-  
+
   measure.type <- CleanParam(measure.type)
   per.mode <- CleanParam(per.mode)
-  
+
   request <- GET(
     "http://stats.nba.com/stats/leaguedashplayerstats",
     query = list(
@@ -77,35 +77,37 @@ GetPlayerStats <- function(year = CurrentYear(),
       Weight = ""
     ),
     add_headers(
-      'Accept-Language' = 'en-US,en;q=0.8,af;q=0.6',
-      'Referer' = 'http://stats.nba.com/player/',
-      'User-Agent' = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36'
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
     )
   )
-  
+
   content <- content(request, 'parsed')[[3]][[1]]
   stats <- ContentToDF(content)
-  
+
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }
 
 .GetPlayerStatsESPN <- function(year, measure.type = 'RPM', per.mode = 'Per Game') {
-  
+
   if (CleanParam(measure.type) == 'RPM') {
     base.url <- paste0('http://espn.go.com/nba/statistics/rpm/_/year/', year, '/page/PPPP/sort/RPM')
-    
+
     continue <- TRUE
     i <- 1
     df <- data.frame()
-    
+
     # Loop through pages until we get to an empty page
     while(continue) {
       url <- gsub('PPPP', i, base.url)
       table <- readHTMLTable(url)[[1]]
-      
+
       if (is.null(table)) {
         continue <- FALSE
       } else {
@@ -113,15 +115,15 @@ GetPlayerStats <- function(year = CurrentYear(),
         i <- i + 1
       }
     }
-    
+
     # Split up Name into Name and Position
     df$POS <- gsub('.*, (.*)', '\\1', df$NAME)
     df$NAME <- gsub('(.*),.*', '\\1', df$NAME)
     df <- df[, c(2, 3, 10, 4:9)]
-    
+
     # Fix the column types
     df[, -c(1:3)] <- lapply(df[, -c(1:3)], as.numeric)
   }
-  
+
   return(df)
 }

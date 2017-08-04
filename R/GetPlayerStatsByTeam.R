@@ -13,22 +13,22 @@
 #' @examples
 #' GetPlayerStatsByTeam(year = 2016, team.id = '1610612745')
 
-GetPlayerStatsByTeam <- function(year = CurrentYear(), 
+GetPlayerStatsByTeam <- function(year = CurrentYear(),
                                  team.id,
-                                 season.type = 'Regular Season', 
-                                 measure.type = 'Base', 
+                                 season.type = 'Regular Season',
+                                 measure.type = 'Base',
                                  per.mode = 'Per Game') {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   if (measure.type == 'Basic') {
     measure.type <- 'Base'
   }
-  
+
   if (per.mode == '100 Possessions') {
     per.mode <- 'Per100Possessions'
   }
-  
+
   request <- GET(
     "http://stats.nba.com/stats/teamplayerdashboard",
     query = list(
@@ -54,15 +54,21 @@ GetPlayerStatsByTeam <- function(year = CurrentYear(),
       VsConference = "",
       VsDivision = ""
     ),
-    add_headers('Referer' = 'http://stats.nba.com/team/')
+    add_headers(
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+    )
   )
-  
+
   content <- content(request, 'parsed')[[3]][[2]]
   stats <- ContentToDF(content)
-  
+
   char.cols <- c('GROUP_SET', 'PLAYER_ID', 'PLAYER_NAME')
   char.cols <- which(colnames(stats) %in% char.cols)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }

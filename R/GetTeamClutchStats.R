@@ -11,14 +11,14 @@
 #' @examples
 #' GetTeamClutchStats(2014)
 
-GetTeamClutchStats <- function(year = CurrentYear(), 
+GetTeamClutchStats <- function(year = CurrentYear(),
                                measure.type = 'Basic',
-                               season.type = 'Regular Season', 
+                               season.type = 'Regular Season',
                                per.mode = 'Totals',
                                quarter = 0) {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   request <- GET(
     "http://stats.nba.com/stats/leaguedashteamclutch",
     query = list(
@@ -55,15 +55,21 @@ GetTeamClutchStats <- function(year = CurrentYear(),
       VsConference = "",
       VsDivision = ""
     ),
-    add_headers('User-Agent' = 'Mozilla/5.0')
+    add_headers(
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+    )
   )
-  
+
   content <- content(request, 'parsed')[[3]][[1]]
   stats <- ContentToDF(content)
-  
+
   # Clean data frame
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }

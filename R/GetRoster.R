@@ -11,11 +11,11 @@
 #' GetRoster(2014, 'Golden State')
 
 GetRoster <- function(year = CurrentYear(), team, team.ids = NA) {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   team <- TeamNameToID(team, year, team.ids)
-  
+
   request <- GET(
     "http://stats.nba.com/stats/commonteamroster",
     query = list(
@@ -23,17 +23,22 @@ GetRoster <- function(year = CurrentYear(), team, team.ids = NA) {
       Season = YearToSeason(year),
       TeamID = team
     ),
-    add_headers('Referer' = 'http://stats.nba.com/team/',
-                'User-Agent' = 'Mozilla/5.0')
+    add_headers(
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+    )
   )
-  
+
   content <- content(request, 'parsed')[[3]][[1]]
   roster <- ContentToDF(content)
-  
+
   num.cols <- c('SEASON', 'NUM', 'WEIGHT', 'AGE', 'EXP')
   num.cols <- which(colnames(roster) %in% num.cols)
   roster[, num.cols] <- sapply(roster[, num.cols], as.numeric)
   roster[is.na(roster$EXP), 'EXP'] <- 0
-  
+
   return(roster)
 }

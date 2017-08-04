@@ -1,5 +1,5 @@
 #' Shot Dashboard stats on players or teams
-#' 
+#'
 #' @param player Player name (if player's dashboard is desired)
 #' @param team Team name (if team's dashboard is desired)
 #' @param stat Statistic to pull (e.g. 'Defender Distance' or 'Shot Clock Range')
@@ -14,28 +14,28 @@
 #' @examples
 #' GetShotDashboard('James Harden', stat = 'Defender Distance')
 
-GetShotDashboard <- function(player, team, stat, year = CurrentYear(), per.mode = 'Totals', 
-                             season.type = 'Regular Season', opponent.id = '0', 
+GetShotDashboard <- function(player, team, stat, year = CurrentYear(), per.mode = 'Totals',
+                             season.type = 'Regular Season', opponent.id = '0',
                              date.from = '', date.to = '', ids = NA) {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   # Get team dashboard
   if (missing(player)) {
-    return(.GetTeamShotDashboard(team, stat, year, per.mode, season.type, opponent.id, 
+    return(.GetTeamShotDashboard(team, stat, year, per.mode, season.type, opponent.id,
                                  date.from, date.to, ids))
   } else {
-    return(.GetPlayerShotDashboard(player, stat, year, per.mode, season.type, opponent.id, 
+    return(.GetPlayerShotDashboard(player, stat, year, per.mode, season.type, opponent.id,
                                    date.from, date.to, ids))
   }
-  
+
   return(stats)
 }
 
-.GetTeamShotDashboard <- function(team, stat, year = CurrentYear(), per.mode = 'Totals', 
-                                  season.type = 'Regular Season', opponent.id = '0', 
+.GetTeamShotDashboard <- function(team, stat, year = CurrentYear(), per.mode = 'Totals',
+                                  season.type = 'Regular Season', opponent.id = '0',
                                   date.from = '', date.to = '', team.ids = NA) {
-  
+
   request <- GET(
     "http://stats.nba.com/stats/teamdashptshots",
     query = list(
@@ -62,11 +62,17 @@ GetShotDashboard <- function(player, team, stat, year = CurrentYear(), per.mode 
       VsConference = "",
       VsDivision = ""
     ),
-    add_headers('User-Agent' = 'Mozilla/5.0')
+    add_headers(
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+    )
   )
-  
+
   content <- content(request, 'parsed')[[3]]
-  
+
   if (stat == 'Shot Type') {
     content <- content[[1]]
   } else if (stat == 'Shot Clock Range') {
@@ -80,21 +86,21 @@ GetShotDashboard <- function(player, team, stat, year = CurrentYear(), per.mode 
   } else if (stat == 'Touch Time Range') {
     content <- content[[6]]
   }
-  
+
   stats <- ContentToDF(content)
-  
+
   # Clean data frame
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }
 
 
-.GetPlayerShotDashboard <- function(player, stat, year = CurrentYear(), per.mode = 'Totals', 
-                                    season.type = 'Regular Season', opponent.id = '0', 
+.GetPlayerShotDashboard <- function(player, stat, year = CurrentYear(), per.mode = 'Totals',
+                                    season.type = 'Regular Season', opponent.id = '0',
                                     date.from = '', date.to = '', player.ids = NA) {
-  
+
   request <- GET(
     "http://stats.nba.com/stats/playerdashptshots",
     query = list(
@@ -120,9 +126,9 @@ GetShotDashboard <- function(player, team, stat, year = CurrentYear(), per.mode 
     ),
     add_headers('User-Agent' = 'Mozilla/5.0')
   )
-  
+
   content <- content(request, 'parsed')[[3]]
-  
+
   if (stat == 'Shot Type') {
     content <- content[[1]]
   } else if (stat == 'Shot Clock Range') {
@@ -136,12 +142,12 @@ GetShotDashboard <- function(player, team, stat, year = CurrentYear(), per.mode 
   } else if (stat == 'Touch Time Range') {
     content <- content[[6]]
   }
-  
+
   stats <- ContentToDF(content)
-  
+
   # Clean data frame
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }

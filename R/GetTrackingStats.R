@@ -1,9 +1,9 @@
 #' NBA Player Tracking
-#' 
+#'
 #' @param year 2015 for 2014-15 season
 #' @param season.type Either 'Regular Season' or 'Playoffs'
 #' @param per.mode Either 'Per Game' or 'Totals'
-#' @param measure.type Either 'SpeedDistance', 'Rebounding', 'Possessions', 'CatchShoot', 'PullUpShot', 
+#' @param measure.type Either 'SpeedDistance', 'Rebounding', 'Possessions', 'CatchShoot', 'PullUpShot',
 #'        'Defense', 'Drives', 'Passing', 'ElbowTouch', 'PostTouch', 'PaintTouch', or 'Efficiency'
 #' @param player.or.team Either 'Player' or 'Team'
 #' @param position Either 'G', 'F', 'C', 'G-F', 'F-G', 'F-C', or 'C-F'
@@ -14,17 +14,17 @@
 #' @examples
 #' GetTrackingStats(stat = 'Postup')
 
-GetTrackingStats <- function(year = CurrentYear(), 
-                             season.type = 'Regular Season', 
-                             per.mode = 'Per Game', 
-                             measure.type, 
-                             player.or.team = 'Player', 
+GetTrackingStats <- function(year = CurrentYear(),
+                             season.type = 'Regular Season',
+                             per.mode = 'Per Game',
+                             measure.type,
+                             player.or.team = 'Player',
                              position = '') {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   per.mode <- CleanParam(per.mode)
-  
+
   request <- GET(
     "http://stats.nba.com/stats/leaguedashptstats",
     query = list(
@@ -59,16 +59,21 @@ GetTrackingStats <- function(year = CurrentYear(),
       VsDivision = "",
       Weight = ""
     ),
-    add_headers('Referer' = 'http://stats.nba.com/tracking/',
-                'User-Agent' = 'Mozilla/5.0')
+    add_headers(
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+    )
   )
-  
+
   content <- content(request, 'parsed')[[3]][[1]]
   stats <- ContentToDF(content)
-  
+
   # Clean data frame
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }

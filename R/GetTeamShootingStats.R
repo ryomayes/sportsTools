@@ -12,16 +12,16 @@
 #' @examples
 #' GetTeamShootingStats(2014)
 
-GetTeamShootingStats <- function(year = CurrentYear(), 
+GetTeamShootingStats <- function(year = CurrentYear(),
                          close.def.dist = '',
                          distance.range,
                          season.type = 'Regular Season',
                          per.mode = 'Totals') {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   per.mode <- CleanParam(per.mode)
-  
+
   if (!missing(distance.range)) {
     request <- GET(
       "http://stats.nba.com/stats/leaguedashteamshotlocations",
@@ -60,7 +60,7 @@ GetTeamShootingStats <- function(year = CurrentYear(),
       add_headers('User-Agent' = 'Mozilla/5.0')
     )
     content <- content(request, 'parsed')$resultSets
-    
+
   } else {
     request <- GET(
       "http://stats.nba.com/stats/leaguedashteamptshot",
@@ -97,16 +97,22 @@ GetTeamShootingStats <- function(year = CurrentYear(),
         VsDivision = "",
         closestDef10 = ""
       ),
-      add_headers('User-Agent' = 'Mozilla/5.0')
+      add_headers(
+        "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+        "Dnt" = '1',
+        "Accept-Encoding" = 'gzip, deflate, sdch',
+        "Accept-Language" = 'en',
+        "origin" = 'http://stats.nba.com'
+      )
     )
     content <- content(request, 'parsed')$resultSets[[1]]
   }
-  
+
   stats <- ContentToDF(content)
-  
+
   # Clean data frame
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }

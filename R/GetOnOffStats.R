@@ -1,5 +1,5 @@
 #' On-Off stats for each player on a team
-#' 
+#'
 #' @param team Either team name ('Golden State') or team id
 #' @param year 2015 for 2014-15 season
 #' @param season.type Either 'Regular Season' or 'Playoffs'
@@ -13,19 +13,19 @@
 #' @examples
 #' GetOnOffStats(team = '1610612745', measure.type = 'Advanced')
 
-GetOnOffStats <- function(team, 
-                          year = CurrentYear(), 
-                          season.type = 'Regular Season', 
-                          measure.type = 'Base', 
+GetOnOffStats <- function(team,
+                          year = CurrentYear(),
+                          season.type = 'Regular Season',
+                          measure.type = 'Base',
                           per.mode = 'Totals',
                           team.ids = NA) {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   measure.type <- CleanParam(measure.type)
   per.mode <- CleanParam(per.mode)
   team <- TeamNameToID(team, year, team.ids = team.ids)
-  
+
   request = GET(
     "http://stats.nba.com/stats/teamplayeronoffdetails",
     query = list(
@@ -51,19 +51,24 @@ GetOnOffStats <- function(team,
       VsConference = "",
       VsDivision = ""
     ),
-    add_headers('Referer' = 'http://stats.nba.com/team/',
-                'User-Agent' = 'Mozilla/5.0')
+    add_headers(
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+    )
   )
-  
+
   content <- content(request, 'parsed')[[3]]
   stats.on <- ContentToDF(content[[2]])
   stats.off <- ContentToDF(content[[3]])
-  
+
   # Merge on and off court stats
   stats <- rbind(stats.on, stats.off)
-  
+
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }

@@ -11,13 +11,13 @@
 #' @examples
 #' GetPlayerShootingStats(2014)
 
-GetPlayerShootingStats <- function(year = CurrentYear(), 
+GetPlayerShootingStats <- function(year = CurrentYear(),
                                    close.def.dist.range = '',
                                    shot.dist.range = '',
                                    season.type = 'Regular Season') {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   request <- GET(
     "http://stats.nba.com/stats/leaguedashplayerptshot",
     query = list(
@@ -60,17 +60,22 @@ GetPlayerShootingStats <- function(year = CurrentYear(),
       VsDivision = "",
       Weight = ""
     ),
-    add_headers('Referer' = 'http://stats.nba.com/players/shots-closest-defender/',
-                'User-Agent' = 'Mozilla/5.0')
+    add_headers(
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+    )
   )
-  
+
   content <- content(request, 'parsed')[[3]][[1]]
   stats <- ContentToDF(content)
-  
+
   # Clean data frame
   char.cols <- c('PLAYER_ID', 'PLAYER_NAME', 'PLAYER_LAST_TEAM_ID', 'PLAYER_LAST_TEAM_ABBREVIATION')
   char.cols <- which(colnames(stats) %in% char.cols)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }

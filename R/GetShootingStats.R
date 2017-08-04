@@ -1,7 +1,7 @@
 #' Shooting stats for players
-#' 
+#'
 #' @param player player's ID
-#' @param stat which stat ('Shot Distance (5ft)', 'Shot Distance (8ft)', 'Shot Area', 
+#' @param stat which stat ('Shot Distance (5ft)', 'Shot Distance (8ft)', 'Shot Area',
 #' 'Assisted Shot', 'Shot Type Summary', 'Shot Type Detail', 'Assisted By')
 #' @param player.ids Optional dataframe of player.ids
 #' @return data frame of stats
@@ -11,14 +11,14 @@
 #' @examples
 #' GetShootingStats(player = '201147', stat = 'Shot Type Detail')
 
-GetShootingStats <- function(player, 
-                             year = CurrentYear(), 
+GetShootingStats <- function(player,
+                             year = CurrentYear(),
                              stat = 'Shot Type Detail',
                              per.mode = 'Totals',
                              player.ids = NA) {
-  
+
   options(stringsAsFactors = FALSE)
-  
+
   request = GET(
     "http://stats.nba.com/stats/playerdashboardbyshootingsplits",
     query = list(
@@ -46,12 +46,17 @@ GetShootingStats <- function(player,
       VsConference = "",
       VsDivision = ""
     ),
-    add_headers('Referer' = 'http://stats.nba.com/player/',
-                'User-Agent' = 'Mozilla/5.0')
+    add_headers(
+      "user-agent" = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+      "Dnt" = '1',
+      "Accept-Encoding" = 'gzip, deflate, sdch',
+      "Accept-Language" = 'en',
+      "origin" = 'http://stats.nba.com'
+    )
   )
-  
+
   content <- content(request, 'parsed')[[3]]
-  
+
   if (stat == 'Shot Distance (5ft)') {
     content <- content[[2]]
   } else if (stat == 'Shot Distance (8ft)') {
@@ -67,11 +72,11 @@ GetShootingStats <- function(player,
   } else if (stat == 'Assisted By') {
     content <- content[[8]]
   }
-  
+
   stats <- ContentToDF(content)
-  
+
   char.cols <- which(colnames(stats) %in% CHARACTER.COLUMNS)
   stats[, -char.cols] <- sapply(stats[, -char.cols], as.numeric)
-  
+
   return(stats)
 }
