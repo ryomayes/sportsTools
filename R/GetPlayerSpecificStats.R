@@ -11,7 +11,7 @@
 #' @importFrom httr GET content add_headers
 #' @export
 #' @examples
-#' GetPlayerSpecificStats('Anthony Davis', 'Scoring', 2015)
+#' GetPlayerSpecificStats('Anthony Davis', measure.type='Scoring', year=2015)
 
 GetPlayerSpecificStats <- function(player,
                                    measure.type,
@@ -21,7 +21,6 @@ GetPlayerSpecificStats <- function(player,
                                    player.ids = NA) {
 
   options(stringsAsFactors = FALSE)
-
   measure.type <- CleanParam(measure.type)
   per.mode <- CleanParam(per.mode)
   player <- PlayerNameToID(player, year, player.ids)
@@ -62,7 +61,6 @@ GetPlayerSpecificStats <- function(player,
       "origin" = 'http://stats.nba.com'
       )
   )
-
   content <- content(request, 'parsed')[[3]][[2]]
   stats <- ContentToDF(content)
 
