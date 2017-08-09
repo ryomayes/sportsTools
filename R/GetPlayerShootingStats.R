@@ -74,8 +74,9 @@ GetPlayerShootingStats <- function(year = CurrentYear(),
       "origin" = 'http://stats.nba.com'
     )
   )
-
+  
   content <- content(request, 'parsed')[[3]][[1]]
+  print(content)
   stats <- ContentToDF(content)
 
   # Clean data frame
