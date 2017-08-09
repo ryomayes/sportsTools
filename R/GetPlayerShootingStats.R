@@ -18,6 +18,7 @@ GetPlayerShootingStats <- function(year = CurrentYear(),
                                    shot.clock.range = '',
                                    dribble.range = '',
                                    touch.time.range = '',
+                                   per.mode = "Totals",
                                    season.type = 'Regular Season') {
 
   options(stringsAsFactors = FALSE)
