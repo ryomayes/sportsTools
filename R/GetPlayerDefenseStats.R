@@ -12,7 +12,8 @@
 
 GetPlayerDefenseStats <- function(year = CurrentYear(),
                                   stat = 'Greater Than 15Ft',
-                                  per.mode = 'Totals') {
+                                  per.mode = 'Totals'
+				  season.type = “Regular Season”) {
 
   options(stringsAsFactors = FALSE)
 
@@ -45,7 +46,7 @@ GetPlayerDefenseStats <- function(year = CurrentYear(),
       PlayerPosition = "",
       Season = YearToSeason(year),
       SeasonSegment = "",
-      SeasonType = "Regular Season",
+      SeasonType = season.type,
       StarterBench = "",
       TeamID = 0,
       VsConference = "",
