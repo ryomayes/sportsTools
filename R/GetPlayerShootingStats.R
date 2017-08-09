@@ -18,7 +18,6 @@ GetPlayerShootingStats <- function(year = CurrentYear(),
                                    shot.clock.range = '',
                                    dribble.range = '',
                                    touch.time.range = '',
-                                   per.mode = 'Totals',
                                    season.type = 'Regular Season') {
 
   options(stringsAsFactors = FALSE)
@@ -47,7 +46,7 @@ GetPlayerShootingStats <- function(year = CurrentYear(),
       Outcome = "",
       PORound = 0,
       PaceAdjust = 'N',
-      PerMode = per.mode,
+      PerMode = 'Totals',
       Period = 0,
       PlayerExperience = "",
       PlayerPosition = "",
@@ -74,9 +73,8 @@ GetPlayerShootingStats <- function(year = CurrentYear(),
       "origin" = 'http://stats.nba.com'
     )
   )
-  
+
   content <- content(request, 'parsed')[[3]][[1]]
-  print(content)
   stats <- ContentToDF(content)
 
   # Clean data frame
