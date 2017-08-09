@@ -11,9 +11,9 @@
 #' GetPlayerDefenseStats(stat = 'Greater Than 15Ft')
 
 GetPlayerDefenseStats <- function(year = CurrentYear(),
-                                  stat = 'Greater Than 15Ft',
-                                  per.mode = 'Totals’,
-				  season.type = “Regular Season”) {
+                                  stat = "Greater Than 15Ft",
+                                  per.mode = "Totals",
+                                  season.type = "Regular Season") {
 
   options(stringsAsFactors = FALSE)
 
